@@ -7,6 +7,8 @@ from docx.shared import Pt
 from fractions import Fraction
 from random import randint, choice
 import qrcode
+from datetime import datetime
+import os
 # 创建变量
 questions = []
 answers = []
@@ -53,7 +55,7 @@ section.left_margin = Cm(1.27) # 左边距
 section.right_margin = Cm(1.27) # 右边距
 paragraph = doc_out.add_paragraph()
 paragraph.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-run = paragraph.add_run(text=str(quantity) + "道分数乘法运算")
+run = paragraph.add_run(text=str(quantity) + "道分数混合四则运算")
 run.bold = True
 run.font.name = '宋体'
 run.font.size = Pt(24)
@@ -88,14 +90,17 @@ for x in range(quantity):
     equation = f'<m:oMathPara xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">\
                 <m:oMath><m:r><m:t>{latex_str}</m:t></m:r></m:oMath></m:oMathPara>'
     run._element.append(parse_xml(equation))
+# 新建文件夹
+folder = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+os.makedirs(f"./{folder}")
 # 生成二维码
 img = qrcode.make(', '.join(map(str, answers)))
-img.save("./answer.png")
-doc_out.add_picture("./answer.png", width=Cm(8)).alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+img.save(f"./{folder}/answer.png")
+doc_out.add_picture(f"./{folder}/answer.png", width=Cm(8))
 # 输出保存
-doc_out.save('./sample.docx')
+doc_out.save(f'./{folder}/questions.docx')
 print(questions)
 print(answers)
-answers_txt = open("./answers.txt", "w")
+answers_txt = open(f"./{folder}/answers.txt", "w")
 answers_txt.write(', '.join(map(str, answers)))
 answers_txt.close()
