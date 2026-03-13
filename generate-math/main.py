@@ -90,18 +90,27 @@ def generate_paper(question_type, quantity, folder):
         run._element.append(parse_xml(equation))
     # 新建文件夹
     os.makedirs(f"./{folder}")
+    # 生成答案
+    print(questions)
+    answers_str = ', '.join(map(str, answers))
+    print(answers_str)
+    answers_txt = open(f"./{folder}/answers.txt", "w")
+    answers_txt.write(answers_str)
+    answers_txt.close()
     # 生成二维码
-    img = qrcode.make(', '.join(map(str, answers)))
+    qr = qrcode.QRCode(
+        image_factory=qrcode.image.pure.PyPNGImage,
+        version=None,
+        box_size=10,
+        border=4
+    )
+    qr.add_data(answers_str)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
     img.save(f"./{folder}/answer.png")
     doc_out.add_picture(f"./{folder}/answer.png", width=Cm(8))
-    # 输出保存
+    # 保存文档
     doc_out.save(f'./{folder}/questions.docx')
-    print(questions)
-    print(answers)
-    answers_txt = open(f"./{folder}/answers.txt", "w")
-    answers_txt.write(', '.join(map(str, answers)))
-    answers_txt.close()
-
 # 输入题型
 while True:
     try:
@@ -127,4 +136,4 @@ while True:
     except Exception as e:
         print("错误：" + str(e))
 for p in range(paper):
-    generate_paper(question_type, quantity, f"{question_types[question_type]} {datetime.now().strftime('%Y-%m-%d %H-%M-%S')} {p+1}")
+    generate_paper(question_type, quantity, f"{question_types[question_type]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{p+1}")
